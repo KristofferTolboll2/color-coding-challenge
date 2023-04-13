@@ -1,10 +1,7 @@
 /**
- *
+ *A class that parses and validates CLI arguments for a given program.
  */
 class ArgumentParser {
-  /**
-   *
-   */
   argumentOrder = {
     node: 0,
     path: 1,
@@ -12,18 +9,18 @@ class ArgumentParser {
     colorFormat: 3,
     asyncProcess: 4,
   };
-  /**
-   *
-   * @param {*} args
-   */
+  /** 
+    Constructs a new instance of the ArgumentParser class.
+    @param {*} args - An array of arguments to be parsed.
+  */
   constructor(args) {
     this.args = args;
-    console.log("DEBUG: ", this.args);
   }
 
   /**
-   *
-   * @returns {Object}
+   * Validates the arguments passed to the program and returns an object with the parsed values.
+   * @returns {Object} - An object containing the parsed arguments.
+   * @throws {Error} - If any of the arguments are invalid.
    */
   validateArguments() {
     if (this.args.length !== Object.keys(this.argumentOrder).length) {

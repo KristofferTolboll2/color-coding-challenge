@@ -4,10 +4,12 @@ const { Green, Blue, Red, White, Black } = require("./classes");
 const { colorLogger } = require("./util");
 
 /**
+ * Asynchronously gets colors and logs them using the specified format.
  *
- * @param {Array} colors
- * @param {string} format
- * @returns {Array} colorData: Array of color data in the format specified by the user. Objectg for RBG or string for HEX
+ * @async
+ * @param {Array<string>} colors - Array of colors to retrieve.
+ * @param {string} format - The format to use for logging the color.
+ * @returns {Promise<void>} Promise that resolves when all colors have been logged.
  */
 async function asyncGetColors(colors, format) {
   const colorPromises = [];
@@ -31,66 +33,81 @@ async function asyncGetColors(colors, format) {
         break;
     }
   });
-  return (await Promise.all(colorPromises)).map((color) => color[format]);
-}
-
-function syncGetColors(colors, format) {
-  const colorData = [];
-  colors.forEach((color) => {
-    switch (color) {
-      case "green":
-        getColor(new Green().name).then((color) => {
-          colorLogger(color[format], format, false, "It worked!");
-        });
-        break;
-      case "blue":
-        getColor(new Blue().name).then((color) => {
-          colorLogger(color[format], format, false, "It worked!");
-        });
-        break;
-      case "red":
-        getColor(new Red().name).then((color) => {
-          colorLogger(color[format], format, false, "It worked!");
-        });
-        break;
-      case "white":
-        getColor(new White().name).then((color) => {
-          colorLogger(color[format], format, false, "It worked!");
-        });
-        break;
-      case "black":
-        getColor(new Black().name).then((color) => {
-          colorLogger(color, format, false, "It worked!");
-        });
-      default:
-        break;
-    }
+  //All promises are resolved at the same time, using the promise.all() function.
+  //The result is an array of the resolved values of the promises. "Getting all the colors at the same time"
+  (await Promise.all(colorPromises)).forEach((color, index) => {
+    colorLogger(color[format], format, false, "It worked!");
   });
-  console.log("DEBUG: ", colorData);
-  return colorData.map((color) => color[format]);
+}
+/**
+ * Synchronously gets colors and logs them using the specified format.
+ *
+ * @param {Array<string>} colors - Array of colors to retrieve.
+ * @param {string} format - The format to use for logging the color.
+ * @returns {Promise<void>} Promise that resolves when all colors have been logged.
+ */
+function syncGetColors(colors, format) {
+  return new Promise((resolve, reject) => {
+    const colorPromises = [];
+    for (const color of colors) {
+      let colorPromise;
+      switch (color) {
+        case "green":
+          colorPromise = getColor(new Green().name);
+          break;
+        case "blue":
+          colorPromise = getColor(new Blue().name);
+          break;
+        case "red":
+          colorPromise = getColor(new Red().name);
+          break;
+        case "white":
+          colorPromise = getColor(new White().name);
+          break;
+        case "black":
+          colorPromise = getColor(new Black().name);
+          break;
+        default:
+          break;
+      }
+      colorPromises.push(colorPromise);
+    }
+
+    const logColors = async () => {
+      for (const colorPromise of colorPromises) {
+        const index = colorPromises.indexOf(colorPromise);
+        console.log("Executing color promise at index: ", index);
+        //Here the promises are executed one after the other, using the await keyword.
+        //Which means that the next promise is only executed after the previous one is resolved. "Getting one color a time"
+        const colorResult = await colorPromise;
+        colorLogger(colorResult[format], format, false, "It worked!");
+      }
+      resolve();
+    };
+
+    logColors().catch(reject);
+  });
 }
 
+/**
+ * Entry point for the application.
+ *
+ * @async
+ * @returns {Promise<void>} Promise that resolves when all colors have been logged.
+ */
 async function colors() {
   const { colorFormat, colors, asyncProcess } = new ArgumentParser(
     process.argv
   ).validateArguments();
 
   if (asyncProcess) {
-    const colorData = await asyncGetColors(colors, colorFormat);
-    console.log("DEBUG: ", colorData);
-    colorData.forEach((color) => colorLogger(color, colorFormat, asyncProcess));
+    await asyncGetColors(colors, colorFormat);
   } else {
-    const colorData = syncGetColors(colors, colorFormat);
-    colorData.forEach((color) => colorLogger(color, colorFormat, asyncProcess));
+    syncGetColors(colors, colorFormat);
   }
 }
 
-//Async IIFE
+//Async IIFE to execute the application in an async context.
 (async () => {
   await colors();
 })();
-
-/*
-To run application:
-node ~/code-challenge/src/index.js true false true '["green","blue", "red"]'
-*/

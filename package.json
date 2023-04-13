@@ -7,7 +7,7 @@
   "license": "UNLICENSED",
   "type": "commonjs",
   "scripts": {
-    "start": "node src/index.js '['white', 'green', 'black']' HEX true"
+    "start": "node src/index.js"
   },
   "dependencies": {
     "chalk": "^5.2.0"
