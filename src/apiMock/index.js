@@ -1,5 +1,5 @@
 exports.getColor = async function (colorName) {
-  await new Promise((resolve) => setTimeout(resolve, 1500));
+  await new Promise((resolve) => setTimeout(resolve, 500));
   if (colorName === "black")
     return { name: "black", HEX: "#000000", RGB: { R: 0, G: 0, B: 0 } };
   if (colorName === "white")

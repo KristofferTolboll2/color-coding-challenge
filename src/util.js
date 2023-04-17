@@ -19,12 +19,16 @@ const colorLogger = (color, format, asyncProcess, prompt = "It worked!") => {
   let blue = isHexColorFormat
     ? parseInt(parsedHexColor.substr(4, 2), 16)
     : color.B;
+
+  const colorStringValue = isHexColorFormat
+    ? color
+    : `rgb(${red}, ${green}, ${blue})`;
   //Custom logger function to print the color in the console based on the HEX or RGB colors of the selected color.
   let fgColorString = `\x1b[38;2;${red};${green};${blue}m`;
   console.log(
     `${fgColorString} ${prompt} Printed in ${format} using a ${
       asyncProcess ? "async" : "sync"
-    } process`
+    } process, with the color values of ${colorStringValue} \x1b[0m`
   );
 };
 
